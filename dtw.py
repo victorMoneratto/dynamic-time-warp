@@ -8,12 +8,12 @@ default_bandwidth = 3
 
 
 def main():
-	# Parse command line arguments
-	parser = argparse.ArgumentParser(description="Dynamic Time Warp program")
-	parser.add_argument('-b', '--bandwidth', metavar='band', type=int, help='Sakoi-Chiba bandwidth treshold')
-
+	# parse command line arguments
+	parser = argparse.ArgumentParser(description="dynamic Time Warp program")
+	parser.add_argument('-b', '--bandwidth', dest='bandwidth', metavar='width', type=int, help='bandwidth for Sakoe-Chiba')
 	args = parser.parse_args()
-	#set command line arguments
+	
+	# save command line arguments
 	bandwidth = args.bandwidth or default_bandwidth
 
 
@@ -47,7 +47,7 @@ def main():
 			# perform dtw
 			for i in range(1, len(training)):
 				for j in range(1, len(testing)):
-					if (abs(i - j) < bandwidth): # Sakoi-Chiba band
+					if (abs(i - j) < bandwidth): # Sakoe-Chiba band
 						cost = (training[i] - testing[j])**2
 						dtw[i][j] = cost + min(dtw[i-1][j],
 											   dtw[i][j-1],
@@ -60,21 +60,22 @@ def main():
 		# increment total and correct counts for label
 		stat_value = stats.get(testing_label, (0, 0))
 		stats[testing_label] = (stat_value[0]+1, stat_value[1] + (1 if min_label == testing_label else 0))
-		#update last label
+		# update last label
 		last_testing_label = testing_label
 
 	# report all
 	report_all(stats.itervalues())
 
-# Report total results
+# report total results
 def report_all(stats):
 	sum = [0, 0]
 	for stat in stats:
 		sum[0] += stat[0]
 		sum[1] += stat[1]
+	print "="*40
 	print "Total: %.2f%% (%d/%d) correct" % (100.0*float(sum[1])/sum[0], sum[1], sum[0])
 
-# Report results for label
+# report results for label
 def report_single(label_name, stat):
 	print "%s: %.2f%% (%d/%d) correct" % (label_name, 100.0*float(stat[1])/stat[0], stat[1], stat[0])	
 
