@@ -17,13 +17,15 @@ def main():
     # parse command line arguments
     parser = argparse.ArgumentParser(description="dynamic Time Warp program")
     parser.add_argument('-b', '--bandwidth', dest='bandwidth',
-                        metavar='width', type=int, default=5, help='bandwidth for Sakoe-Chiba')
+                        metavar='percentage', type=int, default=0.1, help='bandwidth for Sakoe-Chiba')
     parser.add_argument(
         '-3D', '-3d', dest='tridimensional', action="store_true", help='3D DTW')
     parser.add_argument('-t', '--threads', dest='threads',
                         metavar='num_threads', type=int, default=1, help='max number of threads')
     args = parser.parse_args()
-
+    args.threads = max(args.threads, 1)
+    args.bandwidth = max(0, min(args.bandwidth, 1)) # clamp bandwidth
+    
     num_dimensions = 0
     training_filename = None
     testing_filename = None
@@ -47,8 +49,7 @@ def main():
             label_names[line_parts[0]] = line_parts[1]
 
     # read training data
-    training_array = [
-        line for line in gen_series(training_filename, num_dimensions)]
+    training_array = [series for series in gen_series(training_filename, num_dimensions)]
 
     testing_array = []
     last_testing_label = None
@@ -123,8 +124,9 @@ def report_all(results, total):
     sum = 0
     for result in results:
         sum += result
-    print "="*60
+    print "="*45
     print "Total: %6.2f%% (%d/%d) correct" % (100.0*float(sum)/total, sum, total)
 
 if __name__ == '__main__':
     main()
+    
