@@ -107,9 +107,10 @@ def parse_series_line(line, dimension):
     parts = line.split(" ")
     label = parts[0]
     parts = parts[1:]
-    series = [[0.0]*dimension for i in range(len(parts)/dimension)]
-    for i in range(0, (len(parts))/dimension, dimension):
-        for j in range(dimension):
+    parts_per_dimension = len(parts)/dimension
+    series = [[0.0]*dimension for i in xrange(parts_per_dimension)]
+    for i in xrange(0, parts_per_dimension, dimension):
+        for j in xrange(dimension):
             series[i][j] = float(parts[i+j])
     return (series, label)
 
